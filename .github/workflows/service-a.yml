@@ -1,0 +1,16 @@
+name: Service A
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/a/**"
+      - "ops/services/a/**"
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    uses: ./.github/workflows/_service-pipeline.yml
+    with:
+      service: a
+    secrets: inherit
