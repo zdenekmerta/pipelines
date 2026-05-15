@@ -84,3 +84,38 @@ jobs:
         if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
         run: |
           echo "Deploy service: ${{ needs.build.outputs.image }}"
+
+  prod:
+    needs:
+      - changes
+      - build
+      - ppe
+    if: |
+      always() &&
+      needs.changes.result == 'success' &&
+      (
+        needs.changes.outputs.build == 'true' ||
+        needs.changes.outputs.deployment == 'true' ||
+        needs.changes.outputs.infrastructure == 'true'
+      ) &&
+      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
+      (needs.ppe.result == 'success' || needs.ppe.result == 'skipped')
+    environment:
+      name: prod
+    concurrency:
+      group: prod-${{ inputs.service }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Provision infrastructure
+        if: needs.changes.outputs.infrastructure == 'true'
+        run: |
+          echo "Provision infrastructure: ${{ inputs.service }}"
+
+      - name: Deploy service
+        if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
+        run: |
+          echo "Deploy service: ${{ needs.build.outputs.image }}"
