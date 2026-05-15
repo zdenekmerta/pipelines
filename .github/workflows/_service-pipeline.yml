@@ -23,13 +23,13 @@ jobs:
         with:
           filters: |
             build:
-              - '/services/${{ inputs.service }}/**'
+              - 'services/${{ inputs.service }}/**'
 
             deployment:
-              - '/ops/services/${{ inputs.service }}/deployment/**'
+              - 'ops/services/${{ inputs.service }}/deployment/**'
 
             infrastructure:
-              - '/ops/services/${{ inputs.service }}/infrastructure/**'
+              - 'ops/services/${{ inputs.service }}/infrastructure/**'
 
   build:
     needs:
