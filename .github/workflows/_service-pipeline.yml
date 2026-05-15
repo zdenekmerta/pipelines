@@ -16,7 +16,7 @@ jobs:
       infrastructure: ${{ steps.filter.outputs.infrastructure }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: dorny/paths-filter@v4
         id: filter
@@ -40,7 +40,7 @@ jobs:
       image: ${{ steps.meta.outputs.image }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: meta
         run: |
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Provision infrastructure
         if: needs.changes.outputs.infrastructure == 'true'
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Provision infrastructure
         if: needs.changes.outputs.infrastructure == 'true'
