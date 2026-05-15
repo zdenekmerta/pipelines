@@ -78,7 +78,7 @@ jobs:
       - name: Provision infrastructure
         if: needs.changes.outputs.infrastructure == 'true'
         run: |
-          echo "Provision infrastructure: ${{ inputs.service }}""
+          echo "Provision infrastructure: ${{ inputs.service }}"
 
       - name: Deploy service
         if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
