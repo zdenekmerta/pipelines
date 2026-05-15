@@ -59,6 +59,15 @@ jobs:
   ppe:
     needs:
       - changes
+      - build
+      if: |
+        always() &&
+        needs.changes.result == 'success' &&
+        (
+          needs.changes.outputs.build == 'true' ||
+          needs.changes.outputs.deployment == 'true' ||
+          needs.changes.outputs.infrastructure == 'true'
+        )
     environment:
       name: ppe
     runs-on: ubuntu-latest
