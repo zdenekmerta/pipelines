@@ -1,0 +1,77 @@
+name: Service pipeline template
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.filter.outputs.build }}
+      deployment: ${{ steps.filter.outputs.deployment }}
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            build:
+              - '/services/${{ inputs.service }}/**'
+
+            deployment:
+              - '/ops/services/${{ inputs.service }}/deployment/**'
+
+            infrastructure:
+              - '/ops/services/${{ inputs.service }}/infrastructure/**'
+
+  build:
+    needs:
+      - changes
+    if: always() && needs.changes.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: |
+          TAG=$(date +%s)
+          IMAGE="${{ inputs.service }}:${TAG}"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        run: |
+          echo "Build image: ${{ steps.meta.outputs.image }}"
+
+      - name: Push image
+        run: |
+          echo "Push image: ${{ steps.meta.outputs.image }}"
+
+  ppe:
+    needs:
+      - changes
+    environment:
+      name: ppe
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Provision infrastructure
+        if: needs.changes.outputs.infrastructure == 'true'
+        run: |
+          echo "Provision infrastructure: ${{ inputs.service }}""
+
+      - name: Deploy service
+        if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
+        run: |
+          echo "Deploy service: ${{ inputs.service }}"
