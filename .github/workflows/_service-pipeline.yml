@@ -83,4 +83,4 @@ jobs:
       - name: Deploy service
         if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
         run: |
-          echo "Deploy service: ${{ inputs.service }}"
+          echo "Deploy service: ${{ needs.build.outputs.image }}"
