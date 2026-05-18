@@ -40,10 +40,10 @@ jobs:
               - '!ops/services/${{ inputs.service }}/infrastructure/Pulumi.*.yaml'
 
             infrastructure-config-ppe:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
+              - 'ops/services/${{ inputs.service }}/infrastructure/Pulumi.ppe.yaml'
 
             infrastructure-config-prod:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
+              - 'ops/services/${{ inputs.service }}/infrastructure/Pulumi.prod.yaml'
 
   build:
     needs:
@@ -79,10 +79,11 @@ jobs:
       needs.changes.result == 'success' &&
       (
         needs.changes.outputs.build == 'true' ||
-        needs.changes.outputs.deployment-code == 'true' ||
-        needs.changes.outputs.deployment-config-ppe == 'true' ||
         needs.changes.outputs.infrastructure-code == 'true' ||
-        needs.changes.outputs.infrastructure-config-ppe == 'true'
+        needs.changes.outputs.infrastructure-config-ppe == 'true' ||
+        needs.changes.outputs.deployment-code == 'true' ||
+        needs.changes.outputs.deployment-config-ppe == 'true'
+
       )
     environment:
       name: ppe
