@@ -25,6 +25,10 @@ jobs:
       - uses: dorny/paths-filter@v4
         id: filter
         with:
+          # Require files to match all rules in a filter.
+          # This is needed for exclude patterns (`!`) to work correctly.
+          # Without this, a file matching any positive pattern would still make the filter evaluate to true.
+          predicate-quantifier: every
           filters: |
             build:
               - 'services/${{ inputs.service }}/**'
@@ -44,10 +48,10 @@ jobs:
               - '!ops/services/${{ inputs.service }}/deployment/Pulumi.*.yaml'
 
             deployment_config_ppe:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
 
             deployment_config_prod:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
 
       - name: Debug outputs
         run: |
