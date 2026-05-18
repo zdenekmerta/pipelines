@@ -49,6 +49,16 @@ jobs:
             deployment_config_prod:
               - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
 
+      - name: Debug outputs
+        run: |
+          echo "build=${{ steps.filter.outputs.build }}"
+          echo "infrastructure_code=${{ steps.filter.outputs.infrastructure_code }}"
+          echo "infrastructure_config_ppe=${{ steps.filter.outputs.infrastructure_config_ppe }}"
+          echo "infrastructure_config_prod=${{ steps.filter.outputs.infrastructure_config_prod }}"
+          echo "deployment_code=${{ steps.filter.outputs.deployment_code }}"
+          echo "deployment_config_ppe=${{ steps.filter.outputs.deployment_config_ppe }}"
+          echo "deployment_config_prod=${{ steps.filter.outputs.deployment_config_prod }}"
+
   build:
     needs:
       - changes
