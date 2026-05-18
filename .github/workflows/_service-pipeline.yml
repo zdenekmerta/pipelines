@@ -25,11 +25,25 @@ jobs:
             build:
               - 'services/${{ inputs.service }}/**'
 
-            deployment:
+            deployment-code:
               - 'ops/services/${{ inputs.service }}/deployment/**'
+              - '!ops/services/${{ inputs.service }}/deployment/Pulumi.*.yaml'
 
-            infrastructure:
+            deployment-config-ppe:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
+
+            deployment-config-prod:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
+
+            infrastructure-code:
               - 'ops/services/${{ inputs.service }}/infrastructure/**'
+              - '!ops/services/${{ inputs.service }}/infrastructure/Pulumi.*.yaml'
+
+            infrastructure-config-ppe:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
+
+            infrastructure-config-prod:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
 
   build:
     needs:
@@ -65,8 +79,10 @@ jobs:
       needs.changes.result == 'success' &&
       (
         needs.changes.outputs.build == 'true' ||
-        needs.changes.outputs.deployment == 'true' ||
-        needs.changes.outputs.infrastructure == 'true'
+        needs.changes.outputs.deployment-code == 'true' ||
+        needs.changes.outputs.deployment-config-ppe == 'true' ||
+        needs.changes.outputs.infrastructure-code == 'true' ||
+        needs.changes.outputs.infrastructure-config-ppe == 'true'
       )
     environment:
       name: ppe
@@ -76,12 +92,17 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Provision infrastructure
-        if: needs.changes.outputs.infrastructure == 'true'
+        if: |
+          needs.changes.outputs.infrastructure-code == 'true' ||
+          needs.changes.outputs.infrastructure-config-ppe == 'true'
         run: |
           echo "Provision infrastructure: ${{ inputs.service }}"
 
       - name: Deploy service
-        if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
+        if: |
+          needs.changes.outputs.build == 'true' ||
+          needs.changes.outputs.deployment-code == 'true' ||
+          needs.changes.outputs.deployment-config-ppe == 'true'
         run: |
           echo "Deploy service: ${{ needs.build.outputs.image }}"
 
@@ -95,8 +116,10 @@ jobs:
       needs.changes.result == 'success' &&
       (
         needs.changes.outputs.build == 'true' ||
-        needs.changes.outputs.deployment == 'true' ||
-        needs.changes.outputs.infrastructure == 'true'
+        needs.changes.outputs.infrastructure-code == 'true' ||
+        needs.changes.outputs.infrastructure-config-prod == 'true' ||
+        needs.changes.outputs.deployment-code == 'true' ||
+        needs.changes.outputs.deployment-config-prod == 'true'
       ) &&
       (needs.build.result == 'success' || needs.build.result == 'skipped') &&
       (needs.ppe.result == 'success' || needs.ppe.result == 'skipped')
@@ -111,11 +134,16 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Provision infrastructure
-        if: needs.changes.outputs.infrastructure == 'true'
+        if: |
+          needs.changes.outputs.infrastructure-code == 'true' ||
+          needs.changes.outputs.infrastructure-config-prod == 'true'
         run: |
           echo "Provision infrastructure: ${{ inputs.service }}"
 
       - name: Deploy service
-        if: needs.changes.outputs.build == 'true' || needs.changes.outputs.deployment == 'true'
+        if: |
+          needs.changes.outputs.build == 'true' ||
+          needs.changes.outputs.deployment-code == 'true' ||
+          needs.changes.outputs.deployment-config-prod == 'true'
         run: |
           echo "Deploy service: ${{ needs.build.outputs.image }}"
