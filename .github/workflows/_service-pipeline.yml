@@ -29,7 +29,7 @@ jobs:
             build:
               - 'services/${{ inputs.service }}/**'
 
-            infrastructure-code:
+            infrastructure_code:
               - 'ops/services/${{ inputs.service }}/infrastructure/**'
               - '!ops/services/${{ inputs.service }}/infrastructure/Pulumi.*.yaml'
 
