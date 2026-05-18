@@ -12,8 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build: ${{ steps.filter.outputs.build }}
-      deployment: ${{ steps.filter.outputs.deployment }}
-      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+      infrastructure_code: ${{ steps.filter.outputs.infrastructure_code }}
+      infrastructure_config_ppe: ${{ steps.filter.outputs.infrastructure_config_ppe }}
+      infrastructure_config_prod: ${{ steps.filter.outputs.infrastructure_config_prod }}
+      deployment_code: ${{ steps.filter.outputs.deployment_code }}
+      deployment_config_ppe: ${{ steps.filter.outputs.deployment_config_ppe }}
+      deployment_config_prod: ${{ steps.filter.outputs.deployment_config_ppe }}
 
     steps:
       - uses: actions/checkout@v6
@@ -25,25 +29,25 @@ jobs:
             build:
               - 'services/${{ inputs.service }}/**'
 
-            deployment-code:
-              - 'ops/services/${{ inputs.service }}/deployment/**'
-              - '!ops/services/${{ inputs.service }}/deployment/Pulumi.*.yaml'
-
-            deployment-config-ppe:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
-
-            deployment-config-prod:
-              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
-
             infrastructure-code:
               - 'ops/services/${{ inputs.service }}/infrastructure/**'
               - '!ops/services/${{ inputs.service }}/infrastructure/Pulumi.*.yaml'
 
-            infrastructure-config-ppe:
+            infrastructure_config_ppe:
               - 'ops/services/${{ inputs.service }}/infrastructure/Pulumi.ppe.yaml'
 
-            infrastructure-config-prod:
+            infrastructure_config_prod:
               - 'ops/services/${{ inputs.service }}/infrastructure/Pulumi.prod.yaml'
+
+            deployment_code:
+              - 'ops/services/${{ inputs.service }}/deployment/**'
+              - '!ops/services/${{ inputs.service }}/deployment/Pulumi.*.yaml'
+
+            deployment_config_ppe:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.prod.yaml'
+
+            deployment_config_prod:
+              - 'ops/services/${{ inputs.service }}/deployment/Pulumi.ppe.yaml'
 
   build:
     needs:
@@ -79,10 +83,10 @@ jobs:
       needs.changes.result == 'success' &&
       (
         needs.changes.outputs.build == 'true' ||
-        needs.changes.outputs.infrastructure-code == 'true' ||
-        needs.changes.outputs.infrastructure-config-ppe == 'true' ||
-        needs.changes.outputs.deployment-code == 'true' ||
-        needs.changes.outputs.deployment-config-ppe == 'true'
+        needs.changes.outputs.infrastructure_code == 'true' ||
+        needs.changes.outputs.infrastructure_config_ppe == 'true' ||
+        needs.changes.outputs.deployment_code == 'true' ||
+        needs.changes.outputs.deployment_config_ppe == 'true'
 
       )
     environment:
@@ -94,16 +98,16 @@ jobs:
 
       - name: Provision infrastructure
         if: |
-          needs.changes.outputs.infrastructure-code == 'true' ||
-          needs.changes.outputs.infrastructure-config-ppe == 'true'
+          needs.changes.outputs.infrastructure_code == 'true' ||
+          needs.changes.outputs.infrastructure_config_ppe == 'true'
         run: |
           echo "Provision infrastructure: ${{ inputs.service }}"
 
       - name: Deploy service
         if: |
           needs.changes.outputs.build == 'true' ||
-          needs.changes.outputs.deployment-code == 'true' ||
-          needs.changes.outputs.deployment-config-ppe == 'true'
+          needs.changes.outputs.deployment_code == 'true' ||
+          needs.changes.outputs.deployment_config_ppe == 'true'
         run: |
           echo "Deploy service: ${{ needs.build.outputs.image }}"
 
@@ -117,10 +121,10 @@ jobs:
       needs.changes.result == 'success' &&
       (
         needs.changes.outputs.build == 'true' ||
-        needs.changes.outputs.infrastructure-code == 'true' ||
-        needs.changes.outputs.infrastructure-config-prod == 'true' ||
-        needs.changes.outputs.deployment-code == 'true' ||
-        needs.changes.outputs.deployment-config-prod == 'true'
+        needs.changes.outputs.infrastructure_code == 'true' ||
+        needs.changes.outputs.infrastructure_config_prod == 'true' ||
+        needs.changes.outputs.deployment_code == 'true' ||
+        needs.changes.outputs.deployment_config_prod == 'true'
       ) &&
       (needs.build.result == 'success' || needs.build.result == 'skipped') &&
       (needs.ppe.result == 'success' || needs.ppe.result == 'skipped')
@@ -136,15 +140,15 @@ jobs:
 
       - name: Provision infrastructure
         if: |
-          needs.changes.outputs.infrastructure-code == 'true' ||
-          needs.changes.outputs.infrastructure-config-prod == 'true'
+          needs.changes.outputs.infrastructure_code == 'true' ||
+          needs.changes.outputs.infrastructure_config_prod == 'true'
         run: |
           echo "Provision infrastructure: ${{ inputs.service }}"
 
       - name: Deploy service
         if: |
           needs.changes.outputs.build == 'true' ||
-          needs.changes.outputs.deployment-code == 'true' ||
-          needs.changes.outputs.deployment-config-prod == 'true'
+          needs.changes.outputs.deployment_code == 'true' ||
+          needs.changes.outputs.deployment_config_prod == 'true'
         run: |
           echo "Deploy service: ${{ needs.build.outputs.image }}"
