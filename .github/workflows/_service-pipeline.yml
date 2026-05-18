@@ -17,7 +17,7 @@ jobs:
       infrastructure_config_prod: ${{ steps.filter.outputs.infrastructure_config_prod }}
       deployment_code: ${{ steps.filter.outputs.deployment_code }}
       deployment_config_ppe: ${{ steps.filter.outputs.deployment_config_ppe }}
-      deployment_config_prod: ${{ steps.filter.outputs.deployment_config_ppe }}
+      deployment_config_prod: ${{ steps.filter.outputs.deployment_config_prod }}
 
     steps:
       - uses: actions/checkout@v6
